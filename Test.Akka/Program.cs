@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Akka.Actor;
+using System;
+using Test.Akka.Actors;
 
 namespace Test.Akka
 {
@@ -6,7 +8,10 @@ namespace Test.Akka
 	{
 		static void Main(string[] args)
 		{
-			Console.WriteLine("Hello World!");
+			using var sys = ActorSystem.Create("TestAkka");
+			var firstActor = sys.ActorOf(Props.Create<PrintMyActorRefActor>(), "first-actor");
+			firstActor.Tell("print");
+			sys.WhenTerminated.Wait();
 		}
 	}
 }
