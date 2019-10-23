@@ -1,5 +1,6 @@
 ﻿using Akka.Actor;
 using Akka.Event;
+using System;
 using System.Collections.Generic;
 using Test.Akka.Actors.Messages;
 
@@ -7,8 +8,8 @@ namespace Test.Akka.Actors.Actors
 {
 	public class DeviceGroupActor: UntypedActor
 	{
-		private Dictionary<string, IActorRef> deviceIdToActor = new Dictionary<string, IActorRef>();
-		private Dictionary<IActorRef, string> actorToDeviceId = new Dictionary<IActorRef, string>();
+		private readonly Dictionary<string, IActorRef> deviceIdToActor = new Dictionary<string, IActorRef>();
+		private readonly Dictionary<IActorRef, string> actorToDeviceId = new Dictionary<IActorRef, string>();
 
 		public DeviceGroupActor(string groupId)
 		{
@@ -22,6 +23,9 @@ namespace Test.Akka.Actors.Actors
 		{
 			switch (message)
 			{
+				case RequestAllTemperatures r:
+					Context.ActorOf(DeviceGroupQueryActor.Prop(r.RequestId, actorToDeviceId, Sender, TimeSpan.FromSeconds(3)));
+					break;
 				case RequestTrackDevice trackMsg when trackMsg.GroupId.Equals(GroupId):
 					if (!deviceIdToActor.TryGetValue(trackMsg.DeviceId, out var deviceActor))
 					{
